@@ -1,0 +1,150 @@
+<!--
+stolen/modified from
+https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/03-billiard.html
+-->
+
+<!DOCTYPE html>
+<html>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<head>
+		<title>Billiard</title>
+		<style>
+			body {
+				font-family: verdana; 
+				font-size: 15px;
+			}			
+			.button {
+				background-color: #606060;
+				border: none;
+				color: white;
+				padding: 10px 32px;
+				font-size: 16px;
+				margin: 4px 2px;
+				cursor: pointer;
+			}
+			.slider {
+				-webkit-appearance: none;
+				width: 80px;
+				height: 6px;
+				border-radius: 5px;
+				background: #d3d3d3;
+				outline: none;
+				opacity: 0.7;
+				-webkit-transition: .2s;
+				transition: opacity .2s;
+			}
+		</style>
+	</head>
+	
+<body>
+
+	<button class="button" onclick="resetScene()">Restart</button>
+	<button class="button" onclick="pauseAnim()">Pause</button>
+	<button class="button" onclick="playAnim()">Play</button>
+	Restitution <input type = "range" min = "0" max = "10" value = "10" id = "restitutionSlider" class = "slider">
+	<br>
+	<canvas id="myCanvas" style="border:2px solid"></canvas>
+
+	<script src="Vector2.js"></script>
+	<script src="Ball.js"></script>
+	<script src="PhysicsScene.js"></script>
+	
+<script>
+
+	// drawing -------------------------------------------------------
+
+	var canvas = document.getElementById("myCanvas");
+	var c = canvas.getContext("2d");
+
+	canvas.width = window.innerWidth - 20;
+	canvas.height = window.innerHeight - 100;
+
+	var simMinWidth = 2.0;
+	var cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
+	var simWidth = canvas.width / cScale;
+	var simHeight = canvas.height / cScale;
+
+	function cX(pos) {
+		return pos.x * cScale;
+	}
+
+	function cY(pos) {
+		return canvas.height - pos.y * cScale;
+	}
+
+	// physics scene -------------------------------------------------------
+	physicsScene = new PhysicsScene(simWidth,simHeight);
+	physicsScene.setupSceneRandom();
+
+
+	// draw -------------------------------------------------------
+
+	function draw() {
+		c.clearRect(0, 0, canvas.width, canvas.height);
+
+		c.fillStyle = "#FF0000";
+
+		for (i = 0; i < physicsScene.balls.length; i++) {
+			var ball = physicsScene.balls[i];
+			c.beginPath();			
+			c.arc(
+				cX(ball.pos), cY(ball.pos), cScale * ball.radius, 0.0, 2.0 * Math.PI); 
+			c.closePath();
+			if (physicsScene.colorChangeTimer[i] > 0) {
+				c.fillStyle = "#DDDD00";
+			}
+			else {
+				c.fillStyle = "#FF0000";
+			}
+			c.fill();
+		}
+	}
+
+	// run simulation ---------------
+
+	let count = 0;
+	let timeElapsed = 0;
+	let animateBool = true;
+	function update() {
+		if (!animateBool) {
+			return;
+		}
+		var start = Date.now();
+		physicsScene.simulate();
+		draw();
+		count++;
+		timeElapsed += Date.now() - start;
+		if (count >= 20) {
+			console.log("ave:", timeElapsed / count);
+			count = 0;
+			timeElapsed = 0;
+		}
+		requestAnimationFrame(update);
+	}
+	
+	physicsScene.setupSceneRandom();
+	update();
+
+	document.getElementById("restitutionSlider").oninput = function() {
+		physicsScene.restitution = this.value / 10.0;
+	}
+
+
+	function resetScene() {
+		physicsScene.setupSceneRandom();
+	}
+
+	function pauseAnim() {
+		animateBool = false;
+	}
+
+	function playAnim() {
+		animateBool = true;
+		update();
+	}
+
+	
+</script> 
+</body>
+</html>
