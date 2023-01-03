@@ -87,12 +87,16 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/03-billi
 
 		for (i = 0; i < physicsScene.balls.length; i++) {
 			var ball = physicsScene.balls[i];
-			c.beginPath();			
-			c.arc(
-				cX(ball.pos), cY(ball.pos), cScale * ball.radius, 0.0, 2.0 * Math.PI); 
+			c.beginPath();
+      let t = physicsScene.colorChangeTimer[i];
+			c.ellipse(
+				cX(ball.pos), cY(ball.pos),
+        cScale * ball.radius * (1 + Math.sin(t / 2.0)/10.0),
+        cScale * ball.radius * (1 - Math.sin(t / 2.0)/10.0),
+        0, 0.0, 2.0 * Math.PI); 
 			c.closePath();
-			if (physicsScene.colorChangeTimer[i] > 0) {
-				c.fillStyle = "#DDDD00";
+			if (t > 0) {
+				c.fillStyle = "#FF5500";
 			}
 			else {
 				c.fillStyle = "#FF0000";
@@ -116,7 +120,7 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/03-billi
 		count++;
 		timeElapsed += Date.now() - start;
 		if (count >= 20) {
-			console.log("ave:", timeElapsed / count);
+			//console.log("ave:", timeElapsed / count);
 			count = 0;
 			timeElapsed = 0;
 		}

@@ -4,6 +4,7 @@ class Ball {
 		this.mass = mass;
 		this.pos = pos.clone();
 		this.vel = vel.clone();
+    this.defaultCol = "#FF0000";
 	}
 	simulate(dt, gravity) {
 		this.vel.addByScaledVec(gravity, dt);

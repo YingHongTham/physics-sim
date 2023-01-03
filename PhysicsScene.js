@@ -4,15 +4,15 @@ class PhysicsScene {
 		this.dt = 1.0 / 60.0;
 		this.worldSize = new Vector2(simWidth, simHeight);
 
-    this.numFramesColorChange = 5;
+    this.numFramesColorChange = 20;
 
     // loss of energy at each collision
 		this.restitution = 1.0;
 
-		this.numBalls = 200;
+		this.numBalls = 50;
     this.balls = new Array(this.numBalls);
-    this.minRadius = 0.02;
-    this.maxRadius = 0.04;
+    this.minRadius = 0.04;
+    this.maxRadius = 0.06;
 
     // hash grid
     this.hashGrid = new HashGrid(this.maxRadius, this.numBalls);
@@ -47,7 +47,8 @@ class PhysicsScene {
   // perform one time step
   simulate() {
     for (let i = 0; i < this.numBalls; i++) {
-      this.colorChangeTimer[i]--;
+      this.colorChangeTimer[i] =
+        Math.max(0, this.colorChangeTimer[i] - 1);
     }
 
 		for (const b of this.balls) {
