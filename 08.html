@@ -37,8 +37,8 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/08-inter
         <h1>User Interaction Demo</h1> 
 		<button id = "buttonRun" onclick="run()" class="button">Run</button>
 		<button onclick="restart()" class="button">Restart</button>
-		<button onclick="pauseAnim()" class="button">Pause Anim</button>
-		<button onclick="playAnim()" class="button">Play Anim</button>
+		<button onclick="playPauseAnim()" class="button"
+        id="buttonAnim">Pause Anim</button>
 
 		<br><br>		
         <div id="container"></div>
@@ -50,15 +50,10 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/08-inter
 		<script src="08-InitThree.js"></script>
 		<script>
 			
-			var gThreeStuff = initThreeScene();
+      const container = document.getElementById("container");
+			const gThree = initThreeScene(container);
 
-			var gThreeScene = gThreeStuff.scene;
-			var gRenderer = gThreeStuff.renderer;
-			var gCamera = gThreeStuff.camera;
-			var gCameraControl = gThreeStuff.control;
-
-			var gGrabber;
-			var gMouseDown = false;
+			var gGrabber = new Grabber(gThree);
 
 			var gPhysicsScene = 
 			{
@@ -70,20 +65,25 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/08-inter
 			};
 
 			// add ball to physicsScene
-			var radius2 = 0.2;
-			var pos2 = new THREE.Vector3(radius2, 1.0, radius2);
-			var vel2 = new THREE.Vector3(5,5,5);
-			gPhysicsScene.objects.push(
-					new Ball(pos2, radius2, vel2, gThreeScene, gPhysicsScene));
-
-			// add ball to physicsScene
 			var radius = 0.2;
 			var pos = new THREE.Vector3(radius, 1.0, radius);
 			var vel = new THREE.Vector3();
 			gPhysicsScene.objects.push(
-					new Ball(pos, radius, vel, gThreeScene, gPhysicsScene));
+				new Ball(pos, radius, vel, gThree.scene, gPhysicsScene));
 
-			// ------------------------------------------------------------------
+			// add ball to physicsScene
+			var radius2 = 0.2;
+			var pos2 = new THREE.Vector3(radius2, 1.0, radius2);
+			var vel2 = new THREE.Vector3(5,5,5);
+			gPhysicsScene.objects.push(
+					new Ball(pos2, radius2, vel2, gThree.scene, gPhysicsScene));
+
+			// ------------------------
+      // moves physics objects one time step forward
+      // does not update if gPhyiscsScene.paused = true,
+      // but the three animation loop still occurs
+      // (see update() function)
+      // so in particular the camera can still be moved
 			function simulate() 
 			{
 				if (gPhysicsScene.paused)
@@ -95,43 +95,13 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/08-inter
 			}
 
 
-			// ------- grabber ---------------------
-			gGrabber = new Grabber();
-			container.addEventListener('pointerdown', onPointer, false);
-			container.addEventListener('pointermove', onPointer, false);
-			container.addEventListener('pointerup', onPointer, false);
-
-			function onPointer( evt ) 
-			{
-				event.preventDefault();
-				if (evt.type == "pointerdown") {
-					gGrabber.start(evt.clientX, evt.clientY);
-					gMouseDown = true;
-					if (gGrabber.physicsObject) {
-						gCameraControl.saveState();
-						gCameraControl.enabled = false;
-					}
-				}
-				else if (evt.type == "pointermove" && gMouseDown) {
-					gGrabber.move(evt.clientX, evt.clientY);
-				}
-				else if (evt.type == "pointerup") {
-					if (gGrabber.physicsObject) {
-						gGrabber.end();
-						gCameraControl.reset();
-					}
-					gMouseDown = false;
-					gCameraControl.enabled = true;
-				}
-			}	
-			
 			// ------------------------------------------------------
 
 			var playAnimation = true;
 			function update() {
 				if (!playAnimation) return;
 				simulate();
-				gRenderer.render(gThreeScene, gCamera);
+				gThree.renderer.render(gThree.scene, gThree.camera);
 				requestAnimationFrame(update);
 			}
 			
@@ -159,6 +129,17 @@ https://github.com/matthias-research/pages/blob/master/tenMinutePhysics/08-inter
 				playAnimation = true;
 				update();
 			}
+      function playPauseAnim() {
+        const bt = document.getElementById("buttonAnim");
+          if (playAnimation) {
+            pauseAnim();
+            bt.innerHTML = "Play Anim";
+          }
+          else {
+            playAnim();
+            bt.innerHTML = "Pause Anim";
+          }
+      }
 		</script>
 	</body>
 </html>

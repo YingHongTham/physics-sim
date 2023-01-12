@@ -1,4 +1,5 @@
-function initThreeScene()
+// container is div that
+function initThreeScene(container)
 {
 	var gThreeScene = new THREE.Scene();
 	
