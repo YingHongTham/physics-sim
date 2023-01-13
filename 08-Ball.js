@@ -2,8 +2,7 @@ class Ball {
 	constructor(pos, radius, vel, scene, physicsScene)
 	{
 		// physics data 
-
-    this.pos = pos;
+    this.pos = pos; // always mirrored by vismesh.position
     this.radius = radius;
     this.vel = vel;
 		this.grabbed = false;
@@ -53,22 +52,23 @@ class Ball {
 		this.visMesh.geometry.computeBoundingSphere();
 	}
 
-	startGrab(pos) 
-	{
+	startGrab(pos=null) {
 		this.grabbed = true;
+    if (pos === null)
+      return;
 		this.pos.copy(pos);
 		this.visMesh.position.copy(pos);
 	}
 
-	moveGrabbed(pos, vel) 
-	{
+	moveGrabbed(pos, vel=null) {
 		this.pos.copy(pos);
 		this.visMesh.position.copy(pos);
 	}
 
-	endGrab(pos, vel) 
-	{
+  // default no change in velocity
+	endGrab(pos=null, vel=null) {
 		this.grabbed = false;
-		this.vel.copy(vel);
+    if (vel !== null)
+		  this.vel.copy(vel);
 	}				
 }
